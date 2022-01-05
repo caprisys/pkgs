@@ -3,6 +3,7 @@ variant: scratch
 shell: /toolchain/bin/bash
 dependencies:
   - stage: kernel-build
+  - image: ghcr.io/caprisys/pahole:v0.1.0
 steps:
   - env:
       ARCH: {{ if eq .ARCH "aarch64"}}arm64{{ else if eq .ARCH "x86_64" }}x86_64{{ else }}unsupported{{ end }}
@@ -33,6 +34,7 @@ steps:
         esac
 
         export KERNELRELEASE=$(cat include/config/kernel.release)
+        export PATH="${PATH}:/usr/local/bin"
         make -j $(nproc) modules_install DEPMOD=/toolchain/bin/depmod INSTALL_MOD_PATH=/rootfs
         depmod -b /rootfs $KERNELRELEASE
         unlink /rootfs/lib/modules/$KERNELRELEASE/build
