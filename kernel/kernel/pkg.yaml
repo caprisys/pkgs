@@ -3,6 +3,7 @@ variant: scratch
 shell: /toolchain/bin/bash
 dependencies:
   - stage: kernel-prepare
+  - image: ghcr.io/caprisys/pahole:v0.1.0
 steps:
   - env:
       ARCH: {{ if eq .ARCH "aarch64"}}arm64{{ else if eq .ARCH "x86_64" }}x86_64{{ else }}unsupported{{ end }}
@@ -19,6 +20,7 @@ steps:
         python3 /toolchain/kconfig-hardened-check/bin/kconfig-hardened-check -c .config -p ${KARCH} -m json | python3 /pkg/scripts/filter-hardened-check.py
     build:
       - |
+        export PATH="${PATH}:/usr/local/bin"
         make -j $(nproc)
         make -j $(nproc) modules
         if [[ "${ARCH}" == "arm64" ]]; then
